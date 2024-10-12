@@ -11,52 +11,268 @@ cloudinary.config({
 });
 
 // Créer une nouvelle entrée
+// exports.createForm = async (req, res) => {
+//   try {
+//     const { nom, prenom, surnom, telephone, email } = req.body;
+
+//     let passportUrl, registrationUrl;
+
+//     // Upload du fichier passport vers Cloudinary
+//     if (req.files && req.files.passport) {
+//       const passportResult = await cloudinary.uploader.upload(req.files.passport.tempFilePath, {
+//         folder: 'documents',
+//         resource_type: 'auto'
+//       });
+//       passportUrl = passportResult.secure_url;
+//       fs.unlinkSync(req.files.passport.tempFilePath); // Supprime le fichier temporaire
+//     }
+
+//     // Upload du fichier registration vers Cloudinary
+//     if (req.files && req.files.registration) {
+//       const registrationResult = await cloudinary.uploader.upload(req.files.registration.tempFilePath, {
+//         folder: 'documents',
+//         resource_type: 'auto'
+//       });
+//       registrationUrl = registrationResult.secure_url;
+//       fs.unlinkSync(req.files.registration.tempFilePath); // Supprime le fichier temporaire
+//     }
+
+//     // Création du formulaire avec les données envoyées
+//     const form = new Form({
+//       nom,
+//       prenom,
+//       surnom,
+//       telephone,
+//       email,
+//       passport: passportUrl,
+//       registration: registrationUrl
+//     });
+
+//     await form.save(); // Sauvegarde dans la base de données
+
+//     res.status(201).json({ success: true, data: form });
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).json({ success: false, message: error.message });
+//   }
+// };
+
+// Créer une nouvelle entrée
+// exports.createForm = async (req, res) => {
+//   try {
+//     const {
+//       nationality,
+//       nom,
+//       prenom,
+//       surnom,
+//       telephone,
+//       email
+//     } = req.body;
+
+//     // Validation des champs requis
+//     if (!nationality || !nom || !prenom || !telephone || !email) {
+//       return res.status(400).json({ success: false, message: 'Champs requis manquants' });
+//     }
+
+//     let uploadedFiles = {};
+
+//     if (nationality === 'russe') {
+//       // Vérification des fichiers requis pour les Russes
+//       if (!req.files || !req.files.passport || !req.files.registration) {
+//         return res.status(400).json({ success: false, message: 'Les fichiers passport et registration sont requis pour les Russes' });
+//       }
+
+//       // Upload du passport
+//       const passportResult = await cloudinary.uploader.upload(req.files.passport.tempFilePath, {
+//         folder: 'documents',
+//         resource_type: 'auto'
+//       });
+//       uploadedFiles.passport = passportResult.secure_url;
+//       fs.unlinkSync(req.files.passport.tempFilePath);
+
+//       // Upload de la registration
+//       const registrationResult = await cloudinary.uploader.upload(req.files.registration.tempFilePath, {
+//         folder: 'documents',
+//         resource_type: 'auto'
+//       });
+//       uploadedFiles.registration = registrationResult.secure_url;
+//       fs.unlinkSync(req.files.registration.tempFilePath);
+
+//     } else if (nationality === 'etranger') {
+//       // Vérification des fichiers requis pour les étrangers
+//       const requiredFiles = ['passport', 'translationPassport', 'migrationCard', 'registrationPages'];
+//       for (let field of requiredFiles) {
+//         if (!req.files || !req.files[field]) {
+//           return res.status(400).json({ success: false, message: `Le fichier ${field} est requis pour les étrangers` });
+//         }
+//       }
+
+//       // Upload des fichiers requis
+//       for (let field of requiredFiles) {
+//         const result = await cloudinary.uploader.upload(req.files[field].tempFilePath, {
+//           folder: 'documents',
+//           resource_type: 'auto'
+//         });
+//         uploadedFiles[field] = result.secure_url;
+//         fs.unlinkSync(req.files[field].tempFilePath);
+//       }
+
+//       // Upload du visa si présent
+//       if (req.files && req.files.visa) {
+//         const visaResult = await cloudinary.uploader.upload(req.files.visa.tempFilePath, {
+//           folder: 'documents',
+//           resource_type: 'auto'
+//         });
+//         uploadedFiles.visa = visaResult.secure_url;
+//         fs.unlinkSync(req.files.visa.tempFilePath);
+//       }
+//       // Upload du greenCard si présent
+//       if (req.files && req.files.greenCard) {
+//         const greenCardResult = await cloudinary.uploader.upload(req.files.visa.tempFilePath, {
+//           folder: 'documents',
+//           resource_type: 'auto'
+//         });
+//         uploadedFiles.visa = greenCardResult.secure_url;
+//         fs.unlinkSync(req.files.greenCard.tempFilePath);
+//       }
+//       // Upload du patent si présent
+//       if (req.files && req.files.patent) {
+//         const patentResult = await cloudinary.uploader.upload(req.files.visa.tempFilePath, {
+//           folder: 'documents',
+//           resource_type: 'auto'
+//         });
+//         uploadedFiles.visa = patentResult.secure_url;
+//         fs.unlinkSync(req.files.patent.tempFilePath);
+//       }
+
+//     } else {
+//       return res.status(400).json({ success: false, message: 'Nationalité invalide' });
+//     }
+
+//     // Création du formulaire
+//     const form = new Form({
+//       nationality,
+//       nom,
+//       prenom,
+//       surnom,
+//       telephone,
+//       email,
+//       ...uploadedFiles
+//     });
+
+//     await form.save();
+
+//     res.status(201).json({ success: true, data: form });
+
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).json({ success: false, message: error.message });
+//   }
+// };
+
+
+// Créer une nouvelle entrée
 exports.createForm = async (req, res) => {
   try {
-    const { nom, prenom, surnom, telephone, email } = req.body;
+    const {
+      nationality,
+      nom,
+      prenom,
+      surnom,
+      telephone,
+      email
+    } = req.body;
 
-    let passportUrl, registrationUrl;
-
-    // Upload du fichier passport vers Cloudinary
-    if (req.files && req.files.passport) {
-      const passportResult = await cloudinary.uploader.upload(req.files.passport.tempFilePath, {
-        folder: 'documents',
-        resource_type: 'auto'
-      });
-      passportUrl = passportResult.secure_url;
-      fs.unlinkSync(req.files.passport.tempFilePath); // Supprime le fichier temporaire
+    // Validation des champs requis
+    if (!nationality || !nom || !prenom || !telephone || !email) {
+      return res.status(400).json({ success: false, message: 'Champs requis manquants' });
     }
 
-    // Upload du fichier registration vers Cloudinary
-    if (req.files && req.files.registration) {
+    let uploadedFiles = {};
+
+    // Vérification du fichier passport (requis pour tous)
+    if (!req.files || !req.files.passport) {
+      return res.status(400).json({ success: false, message: 'Le fichier passport est requis' });
+    }
+
+    // Upload du passport
+    const passportResult = await cloudinary.uploader.upload(req.files.passport.tempFilePath, {
+      folder: 'documents',
+      resource_type: 'auto'
+    });
+    uploadedFiles.passport = passportResult.secure_url;
+    fs.unlinkSync(req.files.passport.tempFilePath);
+
+    if (nationality === 'russe') {
+      // Vérification du fichier registration pour les Russes
+      if (!req.files || !req.files.registration) {
+        return res.status(400).json({ success: false, message: 'Le fichier registration est requis pour les Russes' });
+      }
+
+      // Upload de la registration
       const registrationResult = await cloudinary.uploader.upload(req.files.registration.tempFilePath, {
         folder: 'documents',
         resource_type: 'auto'
       });
-      registrationUrl = registrationResult.secure_url;
-      fs.unlinkSync(req.files.registration.tempFilePath); // Supprime le fichier temporaire
+      uploadedFiles.registration = registrationResult.secure_url;
+      fs.unlinkSync(req.files.registration.tempFilePath);
+
+    } else if (nationality === 'etranger') {
+      // Vérification des fichiers requis pour les étrangers
+      const requiredFiles = ['translationPassport', 'migrationCard', 'registrationPages'];
+      for (let field of requiredFiles) {
+        if (!req.files || !req.files[field]) {
+          return res.status(400).json({ success: false, message: `Le fichier ${field} est requis pour les étrangers` });
+        }
+      }
+
+      // Upload des fichiers requis
+      for (let field of requiredFiles) {
+        const result = await cloudinary.uploader.upload(req.files[field].tempFilePath, {
+          folder: 'documents',
+          resource_type: 'auto'
+        });
+        uploadedFiles[field] = result.secure_url;
+        fs.unlinkSync(req.files[field].tempFilePath);
+      }
+
+      // Upload des fichiers optionnels
+      const optionalFiles = ['visa', 'patent', 'greenCard'];
+      for (let field of optionalFiles) {
+        if (req.files && req.files[field]) {
+          const result = await cloudinary.uploader.upload(req.files[field].tempFilePath, {
+            folder: 'documents',
+            resource_type: 'auto'
+          });
+          uploadedFiles[field] = result.secure_url;
+          fs.unlinkSync(req.files[field].tempFilePath);
+        }
+      }
+
+    } else {
+      return res.status(400).json({ success: false, message: 'Nationalité invalide' });
     }
 
-    // Création du formulaire avec les données envoyées
+    // Création du formulaire
     const form = new Form({
+      nationality,
       nom,
       prenom,
       surnom,
       telephone,
       email,
-      passport: passportUrl,
-      registration: registrationUrl
+      ...uploadedFiles
     });
 
-    await form.save(); // Sauvegarde dans la base de données
+    await form.save();
 
     res.status(201).json({ success: true, data: form });
+
   } catch (error) {
     console.error(error);
     res.status(500).json({ success: false, message: error.message });
   }
 };
-
 // Modifier une entrée existante
 exports.updateForm = async (req, res) => {
   try {
