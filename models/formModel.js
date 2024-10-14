@@ -168,6 +168,14 @@ const formSchema = new mongoose.Schema({
     type: String,
     required: false,
   },
+  inn: {
+    type: String,
+    required: false,
+  },
+  snils: {
+    type: String,
+    required: false,
+  },
 }, { timestamps: true });
 
 const Form = mongoose.model('Form', formSchema);
